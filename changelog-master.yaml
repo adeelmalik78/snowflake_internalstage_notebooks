@@ -1,0 +1,10 @@
+databaseChangeLog:
+  - include:
+      file: changesets/stages/001-create-internal-stages.yaml
+      relativeToChangelogFile: true
+  - include:
+      file: changesets/semantic-models/001-deploy-cortex-semantic-model.yaml
+      relativeToChangelogFile: true
+  - include:
+      file: changesets/notebooks/001-deploy-notebook.yaml
+      relativeToChangelogFile: true

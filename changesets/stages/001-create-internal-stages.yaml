@@ -1,0 +1,28 @@
+databaseChangeLog:
+  - changeSet:
+      id: create-cortex-semantic-model-stage
+      author: amalik
+      comment: Internal stage that holds Cortex Agent / Cortex Analyst semantic model YAML files
+      changes:
+        - sql:
+            sql: |
+              CREATE STAGE IF NOT EXISTS CORTEX_SEMANTIC_MODEL_STAGE
+                DIRECTORY = (ENABLE = TRUE)
+                COMMENT = 'Semantic model YAML files for Cortex Agent / Cortex Analyst';
+      rollback:
+        - sql:
+            sql: DROP STAGE IF EXISTS CORTEX_SEMANTIC_MODEL_STAGE;
+
+  - changeSet:
+      id: create-notebook-stage
+      author: amalik
+      comment: Internal stage that holds Snowflake Notebook (.ipynb) source files
+      changes:
+        - sql:
+            sql: |
+              CREATE STAGE IF NOT EXISTS NOTEBOOK_STAGE
+                DIRECTORY = (ENABLE = TRUE)
+                COMMENT = 'Snowflake Notebook source files';
+      rollback:
+        - sql:
+            sql: DROP STAGE IF EXISTS NOTEBOOK_STAGE;

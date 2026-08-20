@@ -1,0 +1,22 @@
+databaseChangeLog:
+  - changeSet:
+      id: deploy-sales-semantic-model-yaml
+      author: amalik
+      # runOnChange only re-fires when THIS changeset's checksum changes. The
+      # PUT statement text below doesn't change just because the referenced
+      # yaml file's contents changed, so bump the "source-version" comment
+      # any time files/sales_semantic_model.yaml is edited, to force a
+      # re-checksum and re-run. See README.md "Change detection" section.
+      runOnChange: true
+      comment: Upload sales_semantic_model.yaml to the Cortex semantic model stage
+      changes:
+        - sql:
+            sql: |
+              /* source-version: 1 */
+              PUT file://changesets/semantic-models/files/sales_semantic_model.yaml
+                @CORTEX_SEMANTIC_MODEL_STAGE
+                OVERWRITE = TRUE
+                AUTO_COMPRESS = FALSE;
+      rollback:
+        - sql:
+            sql: REMOVE @CORTEX_SEMANTIC_MODEL_STAGE/sales_semantic_model.yaml;

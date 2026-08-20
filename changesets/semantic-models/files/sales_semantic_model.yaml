@@ -1,0 +1,19 @@
+name: sales_semantic_model
+description: Example semantic model for the Cortex Agent proof of concept.
+
+tables:
+  - name: sales
+    base_table:
+      database: MY_DB
+      schema: MY_SCHEMA
+      table: SALES_FACT
+    dimensions:
+      - name: region
+        expr: region
+        data_type: varchar
+        description: Sales region
+    facts:
+      - name: revenue
+        expr: revenue
+        data_type: number
+        description: Revenue amount in USD
