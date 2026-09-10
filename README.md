@@ -44,7 +44,8 @@ liquibase-snowflake-poc/
     ├── semantic-models/
     │   ├── 001-deploy-cortex-semantic-model.xml
     │   ├── 001-deploy-cortex-semantic-model.yaml
-    │   └── files/sales_semantic_model.yaml    # the actual YAML that gets PUT
+    │   └── files
+    │        └── sales_semantic_model.yaml    # the actual YAML that gets PUT
     ├── notebooks/
     │   ├── 001-deploy-notebook.xml
     │   ├── 001-deploy-notebook.yaml
