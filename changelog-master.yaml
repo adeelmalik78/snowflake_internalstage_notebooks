@@ -8,3 +8,6 @@ databaseChangeLog:
   - include:
       file: changesets/notebooks/001-deploy-notebook.yaml
       relativeToChangelogFile: true
+  - include:
+      file: changesets/scripts/001-deploy-deduplication-engine.yaml
+      relativeToChangelogFile: true

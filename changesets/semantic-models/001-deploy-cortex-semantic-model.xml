@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <!--
+      runOnChange only re-fires when THIS changeset's checksum changes. The
+      PUT statement text below doesn't change just because the referenced
+      yaml file's contents changed, so bump the "source-version" comment
+      any time files/sales_semantic_model.yaml is edited, to force a
+      re-checksum and re-run. See README.md "Change detection" section.
+    -->
+    <changeSet id="deploy-sales-semantic-model-yaml" author="amalik" runOnChange="true">
+        <comment>Upload sales_semantic_model.yaml to the Cortex semantic model stage</comment>
+        <sql>
+            /* source-version: 1 */
+            PUT file://changesets/semantic-models/files/sales_semantic_model.yaml
+              @CORTEX_SEMANTIC_MODEL_STAGE
+              OVERWRITE = TRUE
+              AUTO_COMPRESS = FALSE;
+        </sql>
+        <rollback>
+            <sql>REMOVE @CORTEX_SEMANTIC_MODEL_STAGE/sales_semantic_model.yaml;</sql>
+        </rollback>
+    </changeSet>
+
+</databaseChangeLog>

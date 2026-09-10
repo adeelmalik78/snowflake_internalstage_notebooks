@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <!--
+      See README.md "Change detection" - bump source-version whenever
+      files/deduplication/engine.py changes so this re-runs.
+    -->
+    <changeSet id="upload-deduplication-engine-script" author="amalik" runOnChange="true">
+        <comment>Upload engine.py to the deduplication/ subdirectory of the Cortex semantic model stage</comment>
+        <sql>
+            /* source-version: 1 */
+            PUT file://changesets/scripts/files/deduplication/engine.py
+              @CORTEX_SEMANTIC_MODEL_STAGE/deduplication/
+              OVERWRITE = TRUE
+              AUTO_COMPRESS = FALSE;
+        </sql>
+        <rollback>
+            <sql>REMOVE @CORTEX_SEMANTIC_MODEL_STAGE/deduplication/engine.py;</sql>
+        </rollback>
+    </changeSet>
+
+</databaseChangeLog>

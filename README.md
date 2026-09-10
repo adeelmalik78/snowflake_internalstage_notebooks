@@ -1,12 +1,19 @@
 # Liquibase Snowflake POC — Stage File & Notebook Deployments
 
-Proof of concept for organizing a Liquibase changelog around two Snowflake
+Proof of concept for organizing a Liquibase changelog around Snowflake
 object types that don't fit the usual "DDL against a table" model:
 
 1. **Internal stage file deployments** — e.g. a Cortex Agent / Cortex Analyst
    semantic model YAML file that needs to land on a stage.
 2. **Snowflake Notebooks** — an `.ipynb` file that needs to land on a stage
    and then be registered/refreshed as a `NOTEBOOK` object.
+3. **Arbitrary scripts into a stage subdirectory** — e.g. a Python file that
+   needs to land in a named subfolder (prefix) of an existing stage, rather
+   than at its root.
+
+Every changelog and changeset in this POC is written twice, once as XML and
+once as YAML, so both are available as a reference — `liquibase.properties`
+picks which master changelog (and therefore which format) actually runs.
 
 ## Why this shape
 
@@ -28,22 +35,36 @@ That lets both object types follow the same pattern:
 ```
 liquibase-snowflake-poc/
 ├── liquibase.properties
-├── changelog-master.yaml                  # includes everything below, in order
+├── changelog-master.xml                   # includes everything below, in order (XML)
+├── changelog-master.yaml                  # same, in YAML
 └── changesets/
     ├── stages/
-    │   └── 001-create-internal-stages.yaml    # CREATE STAGE for both use cases
+    │   ├── 001-create-internal-stages.xml     # CREATE STAGE for all three use cases
+    │   └── 001-create-internal-stages.yaml
     ├── semantic-models/
+    │   ├── 001-deploy-cortex-semantic-model.xml
     │   ├── 001-deploy-cortex-semantic-model.yaml
     │   └── files/sales_semantic_model.yaml    # the actual YAML that gets PUT
-    └── notebooks/
-        ├── 001-deploy-notebook.yaml
-        └── files/customer_analysis.ipynb      # the actual notebook that gets PUT
+    ├── notebooks/
+    │   ├── 001-deploy-notebook.xml
+    │   ├── 001-deploy-notebook.yaml
+    │   └── files/customer_analysis.ipynb      # the actual notebook that gets PUT
+    └── scripts/
+        ├── 001-deploy-deduplication-engine.xml
+        ├── 001-deploy-deduplication-engine.yaml
+        └── files/deduplication/engine.py      # PUT into a stage subdirectory
 ```
 
 Each object type gets its own subfolder with a `files/` directory holding the
 real artifact next to the changelog that deploys it — keeps the "what" next
 to the "how," and each type can be extended (versioned, added to) independently
 of the others.
+
+Each changeset exists as both a `.xml` and a `.yaml` file with identical
+behavior. `changelog-master.xml` and `changelog-master.yaml` each `include`
+their respective format only — pick one master changelog to run via
+`changelogFile` in `liquibase.properties`; don't mix formats within a single
+run.
 
 ## Change detection (the one gotcha)
 
@@ -74,12 +95,38 @@ VERSION FROM LAST` is marked `runAlways: true` instead, since that statement
 is what actually pulls newly-staged content into the notebook — it needs to
 run every deploy, not just once.
 
+## Deploying a file into a stage subdirectory
+
+`changesets/scripts/001-deploy-deduplication-engine.xml` /
+`.yaml` shows a third pattern: `PUT` a script into a *subdirectory* (prefix)
+of an existing stage rather than the stage root, by appending the
+subdirectory path to the stage reference:
+
+```sql
+/* source-version: 1 */
+PUT file://changesets/scripts/files/deduplication/engine.py
+  @CORTEX_SEMANTIC_MODEL_STAGE/deduplication/
+  OVERWRITE = TRUE
+  AUTO_COMPRESS = FALSE;
+```
+
+It reuses `CORTEX_SEMANTIC_MODEL_STAGE` (created in `changesets/stages/`)
+rather than creating a new stage — Snowflake stages don't need to be
+pre-created per subdirectory, the `deduplication/` prefix is created
+implicitly by the `PUT`. This is the pattern to follow for any future
+arbitrary file (script, config, etc.) that needs to land under a stage
+without becoming its own top-level stage. Same `source-version` comment and
+`runOnChange` convention as above applies.
+
 ## Running it
 
 1. Download the Snowflake JDBC driver into `drivers/` (or point `classpath`
    in `liquibase.properties` at wherever you keep it).
 2. Fill in `liquibase.properties` with real account/warehouse/role values.
-3. Run from the repo root (PUT's local file paths are resolved relative to
+3. Pick which master changelog to run by setting `changelogFile` in
+   `liquibase.properties` to either `changelog-master.xml` or
+   `changelog-master.yaml` (only one should be uncommented at a time).
+4. Run from the repo root (PUT's local file paths are resolved relative to
    the working directory):
 
 ```bash
@@ -88,10 +135,12 @@ liquibase update
 
 ## Extending this POC
 
-- Add a new semantic model or notebook by dropping the file into the
-  relevant `files/` folder and adding a new numbered changeset alongside the
-  existing one (`002-deploy-....yaml`) rather than editing `001-*` in place,
-  so history stays intact.
+- Add a new semantic model, notebook, or script by dropping the file into
+  the relevant `files/` folder and adding a new numbered changeset alongside
+  the existing one (`002-deploy-....xml` / `.yaml`) rather than editing
+  `001-*` in place, so history stays intact. Keep the XML and YAML versions
+  of a changeset in sync — only one format runs per deploy, but both are
+  kept as working references.
 - If you need role/warehouse-specific stages per environment, parameterize
   the stage name via Liquibase [changelog
   properties](https://docs.liquibase.com/concepts/changelogs/property-substitution.html)

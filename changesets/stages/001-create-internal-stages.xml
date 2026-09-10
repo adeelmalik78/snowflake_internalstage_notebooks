@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet id="create-cortex-semantic-model-stage" author="amalik">
+        <comment>Internal stage that holds Cortex Agent / Cortex Analyst semantic model YAML files</comment>
+        <sql>
+            CREATE STAGE IF NOT EXISTS CORTEX_SEMANTIC_MODEL_STAGE
+              DIRECTORY = (ENABLE = TRUE)
+              COMMENT = 'Semantic model YAML files for Cortex Agent / Cortex Analyst';
+        </sql>
+        <rollback>
+            <sql>DROP STAGE IF EXISTS CORTEX_SEMANTIC_MODEL_STAGE;</sql>
+        </rollback>
+    </changeSet>
+
+    <changeSet id="create-notebook-stage" author="amalik">
+        <comment>Internal stage that holds Snowflake Notebook (.ipynb) source files</comment>
+        <sql>
+            CREATE STAGE IF NOT EXISTS NOTEBOOK_STAGE
+              DIRECTORY = (ENABLE = TRUE)
+              COMMENT = 'Snowflake Notebook source files';
+        </sql>
+        <rollback>
+            <sql>DROP STAGE IF EXISTS NOTEBOOK_STAGE;</sql>
+        </rollback>
+    </changeSet>
+
+</databaseChangeLog>

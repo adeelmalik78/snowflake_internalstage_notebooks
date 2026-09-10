@@ -1,0 +1,19 @@
+databaseChangeLog:
+  - changeSet:
+      id: upload-deduplication-engine-script
+      author: amalik
+      # See README.md "Change detection" - bump source-version whenever
+      # files/deduplication/engine.py changes so this re-runs.
+      runOnChange: true
+      comment: Upload engine.py to the deduplication/ subdirectory of the Cortex semantic model stage
+      changes:
+        - sql:
+            sql: |
+              /* source-version: 1 */
+              PUT file://changesets/scripts/files/deduplication/engine.py
+                @CORTEX_SEMANTIC_MODEL_STAGE/deduplication/
+                OVERWRITE = TRUE
+                AUTO_COMPRESS = FALSE;
+      rollback:
+        - sql:
+            sql: REMOVE @CORTEX_SEMANTIC_MODEL_STAGE/deduplication/engine.py;

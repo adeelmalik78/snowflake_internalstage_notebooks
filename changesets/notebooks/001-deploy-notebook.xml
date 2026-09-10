@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <!--
+      See README.md "Change detection" - bump source-version whenever
+      files/customer_analysis.ipynb changes so this re-runs.
+    -->
+    <changeSet id="upload-customer-analysis-notebook-file" author="amalik" runOnChange="true">
+        <comment>Upload customer_analysis.ipynb to the notebook stage</comment>
+        <sql>
+            /* source-version: 1 */
+            PUT file://changesets/notebooks/files/customer_analysis.ipynb
+              @NOTEBOOK_STAGE
+              OVERWRITE = TRUE
+              AUTO_COMPRESS = FALSE;
+        </sql>
+        <rollback>
+            <sql>REMOVE @NOTEBOOK_STAGE/customer_analysis.ipynb;</sql>
+        </rollback>
+    </changeSet>
+
+    <changeSet id="create-customer-analysis-notebook" author="amalik">
+        <comment>Create the Snowflake Notebook object pointed at the staged .ipynb</comment>
+        <sql>
+            CREATE NOTEBOOK IF NOT EXISTS CUSTOMER_ANALYSIS
+              FROM '@NOTEBOOK_STAGE'
+              MAIN_FILE = 'customer_analysis.ipynb'
+              QUERY_WAREHOUSE = 'SANDBOX_WH';
+        </sql>
+        <rollback>
+            <sql>DROP NOTEBOOK IF EXISTS CUSTOMER_ANALYSIS;</sql>
+        </rollback>
+    </changeSet>
+
+    <!--
+      runAlways because "ADD LIVE VERSION FROM LAST" is how Snowflake picks
+      up new staged file content into the notebook's live version - this
+      needs to fire every deploy after the PUT above, not just once.
+    -->
+    <changeSet id="publish-customer-analysis-notebook-live-version" author="amalik" runAlways="true">
+        <comment>Refresh the notebook's live version from the latest staged file</comment>
+        <sql>ALTER NOTEBOOK CUSTOMER_ANALYSIS ADD LIVE VERSION FROM LAST;</sql>
+        <rollback/>
+    </changeSet>
+
+</databaseChangeLog>

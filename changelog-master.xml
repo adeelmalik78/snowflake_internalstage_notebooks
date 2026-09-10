@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <include file="changesets/stages/001-create-internal-stages.xml" relativeToChangelogFile="true"/>
+    <include file="changesets/semantic-models/001-deploy-cortex-semantic-model.xml" relativeToChangelogFile="true"/>
+    <include file="changesets/notebooks/001-deploy-notebook.xml" relativeToChangelogFile="true"/>
+    <include file="changesets/scripts/001-deploy-deduplication-engine.xml" relativeToChangelogFile="true"/>
+
+</databaseChangeLog>
