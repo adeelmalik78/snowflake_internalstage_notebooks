@@ -44,7 +44,7 @@ liquibase-snowflake-poc/
     ├── semantic-models/
     │   ├── 001-deploy-cortex-semantic-model.xml
     │   ├── 001-deploy-cortex-semantic-model.yaml
-    │   └── files
+    │   └── files/
     │        └── sales_semantic_model.yaml    # the actual YAML that gets PUT
     ├── notebooks/
     │   ├── 001-deploy-notebook.xml
@@ -54,7 +54,7 @@ liquibase-snowflake-poc/
     └── scripts/
         ├── 001-deploy-deduplication-engine.xml
         ├── 001-deploy-deduplication-engine.yaml
-        └── files
+        └── files/
             ├─── deduplication     # PUT into a stage subdirectory "deduplication"
             └─── engine.py
 ```
