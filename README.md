@@ -55,8 +55,8 @@ liquibase-snowflake-poc/
         ├── 001-deploy-deduplication-engine.xml
         ├── 001-deploy-deduplication-engine.yaml
         └── files/
-            ├─── deduplication     # PUT into a stage subdirectory "deduplication"
-            └─── engine.py
+            └─── deduplication     # PUT into a stage subdirectory "deduplication"
+                 └─── engine.py
 ```
 
 Each object type gets its own subfolder with a `files/` directory holding the
