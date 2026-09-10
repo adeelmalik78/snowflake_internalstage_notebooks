@@ -48,11 +48,14 @@ liquibase-snowflake-poc/
     ├── notebooks/
     │   ├── 001-deploy-notebook.xml
     │   ├── 001-deploy-notebook.yaml
-    │   └── files/customer_analysis.ipynb      # the actual notebook that gets PUT
+    │   └── files
+    │        └── customer_analysis.ipynb      # the actual notebook that gets PUT
     └── scripts/
         ├── 001-deploy-deduplication-engine.xml
         ├── 001-deploy-deduplication-engine.yaml
-        └── files/deduplication/engine.py      # PUT into a stage subdirectory
+        └── files
+            ├─── deduplication     # PUT into a stage subdirectory "deduplication"
+            └─── engine.py
 ```
 
 Each object type gets its own subfolder with a `files/` directory holding the
