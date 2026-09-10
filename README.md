@@ -49,7 +49,7 @@ liquibase-snowflake-poc/
     ├── notebooks/
     │   ├── 001-deploy-notebook.xml
     │   ├── 001-deploy-notebook.yaml
-    │   └── files
+    │   └── files/
     │        └── customer_analysis.ipynb      # the actual notebook that gets PUT
     └── scripts/
         ├── 001-deploy-deduplication-engine.xml
